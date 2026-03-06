@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>pixel.oi</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Space+Grotesk:wght@500;600&amp;display=swap" rel="stylesheet">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Space+Grotesk:wght@500;600&amp;display=swap');
+    
+    :root {
+      --primary: #ffffff;
+    }
+    
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+    }
+    
+    .logo-font {
+      font-family: 'Space Grotesk', sans-serif;
+    }
+
+    .glass {
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(12px);
+    }
+
+    .pixel-canvas {
+      image-rendering: pixelated;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .upload-zone {
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    .upload-zone:hover {
+      border-color: rgb(255 255 255);
+      box-shadow: 0 0 0 3px rgba(255,255,255,0.1);
+    }
+
+    input[type="range"] {
+      accent-color: white;
+    }
+
+    .glow-button {
+      transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+    }
+    
+    .glow-button:hover {
+      box-shadow: 0 0 25px -5px rgb(255 255 255 / 0.5);
+      transform: translateY(-2px);
+    }
+
+    .scrollbar-custom::-webkit-scrollbar {
+      height: 6px;
+      width: 6px;
+    }
+    .scrollbar-custom::-webkit-scrollbar-thumb {
+      background: rgba(255,255,255,0.3);
+      border-radius: 9999px;
+    }
+  </style>
+</head>
+<body class="bg-zinc-950 text-white min-h-screen overflow-x-hidden">
+
+  <!-- NAVBAR -->
+  <nav class="border-b border-white/10 bg-black/80 backdrop-blur-lg fixed w-full z-50">
+    <div class="max-w-screen-2xl mx-auto px-8 py-5 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-8 h-8 bg-white rounded-2xl flex items-center justify-center">
+          <span class="text-black font-bold text-2xl leading-none mt-0.5">p</span>
+        </div>
+        <span class="logo-font text-3xl font-semibold tracking-tighter">pixel.oi</span>
+      </div>
+      
+      <button onclick="showInfo()" 
+              class="px-6 py-2.5 text-sm font-medium border border-white/20 hover:border-white/40 rounded-2xl transition-colors flex items-center gap-2">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 01-18 0 9 9 0 0118 0z" />
+        </svg>
+        INFO
+      </button>
+    </div>
+  </nav>
+
+  <div class="pt-24 pb-16 max-w-screen-2xl mx-auto px-6 lg:px-8">
+    
+    <!-- HERO + UPLOAD -->
+    <div id="hero-section" class="text-center mb-16">
+      <h1 class="text-6xl lg:text-7xl font-semibold logo-font tracking-tighter mb-4">
+        Turn Images Into<br><span class="bg-clip-text text-transparent bg-gradient-to-r from-white to-zinc-400">Pixel Art</span>
+      </h1>
+      <p class="text-xl text-zinc-400 max-w-md mx-auto">
+        Transform your photos into beautiful pixel art instantly.<br>All in your browser.
+      </p>
+      
+      <!-- Upload Zone -->
+      <div id="upload-zone" 
+           class="upload-zone mt-12 max-w-xl mx-auto border-2 border-dashed border-white/30 rounded-3xl p-16 hover:border-white/60 cursor-pointer bg-zinc-900/50">
+        <div class="flex flex-col items-center">
+          <div class="w-20 h-20 bg-white/5 rounded-2xl flex items-center justify-center mb-6">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-10 h-10 text-white/70" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16v-4m0 0l4 4m-4-4l4-4m12 0v4m0-4l-4-4m4 4l-4 4" />
+            </svg>
+          </div>
+          <h3 class="text-2xl font-medium mb-2">Drop image here</h3>
+          <p class="text-zinc-500 mb-6">PNG, JPG, or WEBP • Max 10MB</p>
+          <button onclick="document.getElementById('file-input').click()" 
+                  class="px-8 py-4 bg-white text-black rounded-2xl font-semibold hover:bg-zinc-200 transition-all glow-button">
+            Choose File
+          </button>
+          <input type="file" id="file-input" accept="image/*" class="hidden" onchange="handleFileSelect(event)">
+        </div>
+      </div>
+    </div>
+
+    <!-- EDITOR -->
+    <div id="editor" class="hidden">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
+        
+        <!-- ORIGINAL -->
+        <div>
+          <div class="flex items-center justify-between mb-3 px-1">
+            <span class="uppercase text-xs tracking-widest text-zinc-500 font-medium">Original</span>
+          </div>
+          <div class="aspect-video bg-zinc-900 rounded-3xl overflow-hidden border border-white/10 flex items-center justify-center">
+            <img id="original-img" class="max-h-[420px] max-w-full object-contain" alt="Original">
+          </div>
+        </div>
+
+        <!-- PIXEL RESULT -->
+        <div>
+          <div class="flex items-center justify-between mb-3 px-1">
+            <span class="uppercase text-xs tracking-widest text-zinc-500 font-medium">Pixel Art</span>
+            <span id="resolution-info" class="text-xs text-emerald-400 font-mono"></span>
+          </div>
+          <div class="relative aspect-video bg-zinc-900 rounded-3xl overflow-hidden border border-white/10">
+            <canvas id="pixel-canvas" class="pixel-canvas w-full h-full"></canvas>
+            
+            <!-- Loading overlay -->
+            <div id="loading" class="hidden absolute inset-0 bg-black/70 flex items-center justify-center">
+              <div class="flex flex-col items-center">
+                <div class="w-8 h-8 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                <p class="text-sm mt-4 text-white/70">Pixelating...</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CONTROLS -->
+      <div class="mt-12 max-w-2xl mx-auto glass border border-white/10 rounded-3xl p-8">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+          
+          <!-- Pixel Size -->
+          <div>
+            <div class="flex justify-between text-sm mb-2">
+              <span>Pixel Size</span>
+              <span id="pixel-value" class="font-mono text-emerald-400">12</span>
+            </div>
+            <input type="range" id="pixel-slider" min="2" max="48" value="12" 
+                   class="w-full" oninput="updateValue(this); debounceRender()">
+          </div>
+
+          <!-- Brightness -->
+          <div>
+            <div class="flex justify-between text-sm mb-2">
+              <span>Brightness</span>
+              <span id="brightness-value" class="font-mono text-emerald-400">0</span>
+            </div>
+            <input type="range" id="brightness-slider" min="-80" max="80" value="0" 
+                   class="w-full" oninput="updateValue(this); debounceRender()">
+          </div>
+
+          <!-- Contrast -->
+          <div>
+            <div class="flex justify-between text-sm mb-2">
+              <span>Contrast</span>
+              <span id="contrast-value" class="font-mono text-emerald-400">100</span>
+            </div>
+            <input type="range" id="contrast-slider" min="50" max="150" value="100" 
+                   class="w-full" oninput="updateValue(this); debounceRender()">
+          </div>
+        </div>
+
+        <!-- Toggles & Buttons -->
+        <div class="flex flex-wrap gap-4 mt-10">
+          <label class="flex items-center gap-2 text-sm cursor-pointer">
+            <input type="checkbox" id="grid-toggle" onchange="debounceRender()" checked class="w-4 h-4 accent-white">
+            <span>Show Grid</span>
+          </label>
+          
+          <label class="flex items-center gap-2 text-sm cursor-pointer">
+            <input type="checkbox" id="grayscale-toggle" onchange="debounceRender()" class="w-4 h-4 accent-white">
+            <span>Grayscale</span>
+          </label>
+
+          <div class="flex-1"></div>
+
+          <button onclick="resetAll()" 
+                  class="px-6 py-3 text-sm border border-white/30 hover:bg-white/5 rounded-2xl transition">
+            Reset
+          </button>
+          
+          <button onclick="downloadImage()" 
+                  class="glow-button px-8 py-3 bg-white text-black font-semibold rounded-2xl flex items-center gap-2 hover:scale-105">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v-4m0 0l4 4m-4-4l4-4m12 0v4m0 0l-4-4m4 4v4" />
+            </svg>
+            Download PNG
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="border-t border-white/10 py-8 text-center text-zinc-500 text-sm">
+    © 2026 pixel.oi • Made for creativity
+  </footer>
+
+  <script>
+    // Tailwind init
+    tailwind.config = { content: [] }
+
+    let originalImage = null
+    let pixelCanvas = null
+    let ctx = null
+    let debounceTimer = null
+
+    function init() {
+      pixelCanvas = document.getElementById('pixel-canvas')
+      ctx = pixelCanvas.getContext('2d', { willReadFrequently: true })
+    }
+
+    function handleFileSelect(e) {
+      const file = e.target.files[0]
+      if (!file) return
+      processImage(file)
+    }
+
+    function processImage(file) {
+      const reader = new FileReader()
+      reader.onload = function(event) {
+        const img = new Image()
+        img.onload = function() {
+          originalImage = img
+          document.getElementById('original-img').src = event.target.result
+          
+          // Show editor
+          document.getElementById('hero-section').classList.add('hidden')
+          document.getElementById('editor').classList.remove('hidden')
+          
+          // Auto render pertama
+          setTimeout(() => {
+            renderPixelArt()
+          }, 300)
+        }
+        img.src = event.target.result
+      }
+      reader.readAsDataURL(file)
+    }
+
+    // Drag & Drop
+    const uploadZone = document.getElementById('upload-zone')
+    uploadZone.addEventListener('dragover', (e) => {
+      e.preventDefault()
+      uploadZone.classList.add('border-white')
+    })
+    
+    uploadZone.addEventListener('dragleave', () => {
+      uploadZone.classList.remove('border-white')
+    })
+    
+    uploadZone.addEventListener('drop', (e) => {
+      e.preventDefault()
+      uploadZone.classList.remove('border-white')
+      const file = e.dataTransfer.files[0]
+      if (file && file.type.startsWith('image/')) {
+        processImage(file)
+      }
+    })
+
+    function updateValue(slider) {
+      const id = slider.id.replace('-slider', '-value')
+      const valueEl = document.getElementById(id)
+      if (valueEl) valueEl.textContent = slider.value
+    }
+
+    function clamp(value) {
+      return Math.max(0, Math.min(255, Math.floor(value)))
+    }
+
+    function applyFilters(imageData, brightness, contrast, isGrayscale) {
+      const data = imageData.data
+      
+      const contrastFactor = (259 * (contrast + 255)) / (255 * (259 - contrast))
+      
+      for (let i = 0; i < data.length; i += 4) {
+        let r = data[i]
+        let g = data[i + 1]
+        let b = data[i + 2]
+
+        // Contrast
+        r = contrastFactor * (r - 128) + 128
+        g = contrastFactor * (g - 128) + 128
+        b = contrastFactor * (b - 128) + 128
+
+        // Brightness
+        r += brightness
+        g += brightness
+        b += brightness
+
+        // Clamp
+        r = clamp(r)
+        g = clamp(g)
+        b = clamp(b)
+
+        // Grayscale
+        if (isGrayscale) {
+          const gray = Math.floor(0.299 * r + 0.587 * g + 0.114 * b)
+          r = g = b = gray
+        }
+
+        data[i] = r
+        data[i + 1] = g
+        data[i + 2] = b
+      }
+    }
+
+    function renderPixelArt() {
+      if (!originalImage) return
+      
+      const loading = document.getElementById('loading')
+      loading.classList.remove('hidden')
+
+      // Ambil nilai
+      const blockSize = parseInt(document.getElementById('pixel-slider').value)
+      const brightness = parseInt(document.getElementById('brightness-slider').value)
+      const contrast = parseInt(document.getElementById('contrast-slider').value)
+      const showGrid = document.getElementById('grid-toggle').checked
+      const isGrayscale = document.getElementById('grayscale-toggle').checked
+
+      const origW = originalImage.width
+      const origH = originalImage.height
+      
+      // Set canvas size
+      pixelCanvas.width = origW
+      pixelCanvas.height = origH
+
+      const smallW = Math.max(1, Math.floor(origW / blockSize))
+      const smallH = Math.max(1, Math.floor(origH / blockSize))
+
+      // Temp canvas untuk downsampling
+      const tempCanvas = document.createElement('canvas')
+      tempCanvas.width = smallW
+      tempCanvas.height = smallH
+      const tempCtx = tempCanvas.getContext('2d')
+      
+      tempCtx.drawImage(originalImage, 0, 0, smallW, smallH)
+
+      // Ambil data & apply filter
+      let imageData = tempCtx.getImageData(0, 0, smallW, smallH)
+      applyFilters(imageData, brightness, contrast, isGrayscale)
+      tempCtx.putImageData(imageData, 0, 0)
+
+      // Draw ke main canvas dengan pixel perfect
+      ctx.imageSmoothingEnabled = false
+      ctx.drawImage(tempCanvas, 0, 0, origW, origH)
+
+      // Draw grid jika aktif
+      if (showGrid && blockSize > 3) {
+        ctx.strokeStyle = 'rgba(255,255,255,0.12)'
+        ctx.lineWidth = 1
+        
+        for (let x = 0; x < origW; x += blockSize) {
+          ctx.beginPath()
+          ctx.moveTo(x, 0)
+          ctx.lineTo(x, origH)
+          ctx.stroke()
+        }
+        
+        for (let y = 0; y < origH; y += blockSize) {
+          ctx.beginPath()
+          ctx.moveTo(0, y)
+          ctx.lineTo(origW, y)
+          ctx.stroke()
+        }
+      }
+
+      // Update resolution info
+      document.getElementById('resolution-info').textContent = `\( {smallW}× \){smallH}`
+
+      loading.classList.add('hidden')
+    }
+
+    function debounceRender() {
+      clearTimeout(debounceTimer)
+      debounceTimer = setTimeout(renderPixelArt, 120)
+    }
+
+    function downloadImage() {
+      if (!pixelCanvas) return
+      
+      const link = document.createElement('a')
+      const timestamp = new Date().toISOString().slice(0,19).replace(/[:.]/g, '-')
+      link.download = `pixel-art-${timestamp}.png`
+      link.href = pixelCanvas.toDataURL('image/png')
+      link.click()
+    }
+
+    function resetAll() {
+      if (!originalImage) return
+      
+      document.getElementById('pixel-slider').value = 12
+      document.getElementById('brightness-slider').value = 0
+      document.getElementById('contrast-slider').value = 100
+      document.getElementById('grid-toggle').checked = true
+      document.getElementById('grayscale-toggle').checked = false
+      
+      updateValue(document.getElementById('pixel-slider'))
+      updateValue(document.getElementById('brightness-slider'))
+      updateValue(document.getElementById('contrast-slider'))
+      
+      renderPixelArt()
+    }
+
+    function showInfo() {
+      const msg = `pixel.oi\n\nPixel art generator berbasis browser.\n\nFitur lengkap:\n• Drag & drop upload\n• Real-time preview\n• Pixel size, contrast, brightness\n• Grid overlay + Grayscale\n• High quality PNG download\n• 100% di browser (tanpa server)\n\nSemua proses pakai Canvas API.`
+      alert(msg)
+    }
+
+    // Init
+    window.onload = function() {
+      init()
+      
+      // Update initial value labels
+      updateValue(document.getElementById('pixel-slider'))
+      updateValue(document.getElementById('brightness-slider'))
+      updateValue(document.getElementById('contrast-slider'))
+    }
+  </script>
+</body>
+</html>
